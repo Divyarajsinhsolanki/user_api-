@@ -1,15 +1,20 @@
 class ApplicationController < ActionController::API
 
- # protect_from_forgery with: :null_session
+  # protect_from_forgery with: :null_session
 
- #  respond_to :json
+  # respond_to :json
 
- #  before_action :underscore_params!
- before_action :configure_permitted_parameters, if: :devise_controller?
- before_action :authenticate_user
-	private
+  # before_action :underscore_params!
+  before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :authenticate_user
+	
+  include ActionController::HttpAuthentication::Basic::ControllerMethods
+  include ActionController::HttpAuthentication::Token::ControllerMethods
 
- def authenticate_user!(options = {})
+  # private
+
+
+  def authenticate_user!(options = {})
     head :unauthorized unless signed_in?
   end
 
@@ -21,15 +26,10 @@ class ApplicationController < ActionController::API
     @current_user_id.present?
   end
 
-
-
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
   end
 
-  # def configure_permitted_parameters
-  #   devise_parameter_sanitizer.for(:sign_up) << :username
-  # end
 
   def authenticate_user
     if request.headers['Authorization'].present?
@@ -44,4 +44,5 @@ class ApplicationController < ActionController::API
       end
     end
   end
+
 end
